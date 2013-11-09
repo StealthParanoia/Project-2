@@ -42,18 +42,18 @@ namespace Project_2._0
 
             foreach (var tank in _data.Tanks)
             {
-                DrawTank(e.Graphics, tank);
+                DrawTank(e.Graphics, tank, tank.DColour, tank.FColour);
             }
         }
 
-        private void DrawTank(Graphics g, Tank t)
+        private void DrawTank(Graphics g, Tank t, Pen dc, Brush fc)
         {
             g.TranslateTransform(t.X, t.Y);
             g.RotateTransform(t.Angle);
 
             var tankChassis = new Rectangle(-20, -20, 40, 45);
-            g.DrawRectangle(Pens.Purple, tankChassis);
-            g.FillRectangle(Brushes.Purple, tankChassis);
+            g.DrawRectangle(dc, tankChassis);
+            g.FillRectangle(fc, tankChassis);
 
             var tankTurret = new Rectangle(-20, -20, 40, 40);
             g.DrawEllipse(Pens.Red, tankTurret);
@@ -100,12 +100,30 @@ namespace Project_2._0
                 }
 
                 this.Invalidate();
-
             }
 
-            
+            if (e.KeyCode == Keys.Space)
+            {
+                if (_data.Tanks[2].Angle == 90)
+                {
+                    foreach (var tank in _data.Tanks)
+                    {
+                        if (tank.X == _data.Tanks[2].X - 100 || tank.X == _data.Tanks[2].X + 100)
+                        {
+                            tank.Health -= 10;
+                        }
 
-            
+                        if (tank.Health == 0)
+                        {
+                            tank.DColour = System.Drawing.Pens.Black;
+                            tank.FColour = System.Drawing.Brushes.Black;
+                        }
+                    }
+                }
+
+
+                this.Invalidate();
+            }
         }
 
         private void GameControl_KeyDown(object sender, KeyEventArgs e)
