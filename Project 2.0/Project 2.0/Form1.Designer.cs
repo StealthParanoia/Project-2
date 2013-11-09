@@ -33,6 +33,7 @@
             // 
             // gameControl1
             // 
+            this.gameControl1.Data = null;
             this.gameControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gameControl1.Location = new System.Drawing.Point(0, 0);
             this.gameControl1.Name = "gameControl1";
@@ -47,6 +48,7 @@
             this.Controls.Add(this.gameControl1);
             this.Name = "Form1";
             this.Text = "Project 2.0";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
 
