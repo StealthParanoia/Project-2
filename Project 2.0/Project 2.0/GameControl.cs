@@ -69,6 +69,8 @@ namespace Project_2._0
 
 		private bool _rightPressed;
 
+		private bool _spacePressed;
+
 		#endregion
 
 		#region Properties
@@ -442,6 +444,13 @@ namespace Project_2._0
 			{
 				DrawTank(e.Graphics, tank, tank.DColour, tank.FColour);
 			}
+
+			foreach (var shell in _data.Shells)
+			{
+				DrawShell(e.Graphics, shell);
+			}
+
+
 		}
 
 		private void DrawTank(Graphics g, Tank t, Pen dc, Brush fc)
@@ -462,6 +471,19 @@ namespace Project_2._0
 			g.FillRectangle(Brushes.Blue, tankNozzle);
 
 			g.ResetTransform();
+		}
+
+		private void DrawShell(Graphics g, Shell s)
+		{
+			g.TranslateTransform(s.X, s.Y);
+			g.RotateTransform(s.Angle);
+
+			var tankShell = new Rectangle(0, 20, 2, 10);
+			g.DrawRectangle(Pens.Yellow, tankShell);
+			g.FillRectangle(Brushes.Yellow, tankShell);
+
+			g.ResetTransform();
+
 		}
 
 		#endregion
@@ -509,12 +531,41 @@ namespace Project_2._0
 				if (_data.Tanks[2].Speed < -25)
 					_data.Tanks[2].Speed = -25;
 			}
+			if (_spacePressed)
+			{
+				if (_data.Tanks[2].Reload <= 0)
+				{
+					_data.Shells.Add(_data.Tanks[2].FireShell());				
+				}				
+			}
+
+			if (_data.Tanks[2].Reload > 0)
+			{
+				_data.Tanks[2].Reload -= (float)elapsedMilliseconds / 1000F;
+			}
 
 			foreach (var tank in _data.Tanks)
 			{
 				// TODO: Update required for old location
 
 				tank.MoveTank((float)elapsedMilliseconds / 1000F);
+
+				// TODO: Update required for new location
+			}
+
+			for (var i = 0; i < _data.Shells.Count; i++)
+			{
+				// TODO: Update required for old location
+
+				var shell = _data.Shells[i];
+				shell.MoveShell((float)elapsedMilliseconds / 1000F);
+				shell.Life -= (float)elapsedMilliseconds / 1000F;
+
+				if (shell.Life <= 0)
+				{
+					_data.Shells.RemoveAt(i);
+					i--;
+				}
 
 				// TODO: Update required for new location
 			}
@@ -537,37 +588,27 @@ namespace Project_2._0
 
 		private void GameControl_KeyUp(object sender, KeyEventArgs e)
 		{
+			
+			if (e.KeyCode == Keys.Up)
+			{
+				_upPressed = false;
+			}
+			if (e.KeyCode == Keys.Down)
+			{
+				_downPressed = false;
+			}
+			if (e.KeyCode == Keys.Left)
+			{
+				_leftPressed = false;
+			}
+			if (e.KeyCode == Keys.Right)
+			{
+				_rightPressed = false;
+			}
 			if (e.KeyCode == Keys.Space)
 			{
-				if (_data.Tanks[2].Angle == 90)
-				{
-					foreach (var tank in _data.Tanks)
-					{
-						if (tank.X == _data.Tanks[2].X - 100 || tank.X == _data.Tanks[2].X + 100)
-						{
-							tank.Health -= 10;
-						}
-
-						if (tank.Health == 0)
-						{
-							tank.DColour = System.Drawing.Pens.Black;
-							tank.FColour = System.Drawing.Brushes.Black;
-						}
-					}
-				}
-
-
-				this.Invalidate();
+				_spacePressed = false;
 			}
-
-			if (e.KeyCode == Keys.Up)
-				_upPressed = false;
-			if (e.KeyCode == Keys.Down)
-				_downPressed = false;
-			if (e.KeyCode == Keys.Left)
-				_leftPressed = false;
-			if (e.KeyCode == Keys.Right)
-				_rightPressed = false;
 
 		}
 
@@ -594,6 +635,11 @@ namespace Project_2._0
 				if (keyData == Keys.Right)
 				{
 					_rightPressed = true;
+					return true;
+				}
+				if (keyData == Keys.Space)
+				{
+					_spacePressed = true;
 					return true;
 				}
 			}

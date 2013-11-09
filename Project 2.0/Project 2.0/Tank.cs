@@ -9,10 +9,9 @@ namespace Project_2._0
 {
 	public class Tank
 	{
-		public float X, Y;
-		public float Angle;
-		public float Speed;
+		public float X, Y, Angle, Speed;
 		public float Health = 100;
+		public float Reload;
 		public Pen DColour;
 		public Brush FColour;
 
@@ -25,10 +24,7 @@ namespace Project_2._0
 			FColour = System.Drawing.Brushes.Purple;
 		}
 
-		public Tank()
-		{
-
-		}
+		public Tank() {	}
 
 		public void MoveTank(float secs)
 		{
@@ -38,7 +34,25 @@ namespace Project_2._0
 
 			X += (float)-sine * secs * Speed;
 			Y += (float)cosine * secs * Speed;
+		}
+
+		public Shell FireShell()
+		{
+
+			var shell = new Shell();
+			shell.Angle = this.Angle;
+			shell.Speed = this.Speed + 200;
+			shell.Tank = this;
+			shell.X = this.X;
+			shell.Y = this.Y;
+			shell.Life = 2;
+
+			Reload = 3;
+
+			return shell;
 
 		}
+
+		
 	}
 }
