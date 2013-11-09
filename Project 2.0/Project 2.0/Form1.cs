@@ -16,5 +16,20 @@ namespace Project_2._0
         {
             InitializeComponent();
         }
+
+        private GameData _data;
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            _data = new GameData();
+            Tank tank1 = new Tank(140, 200, 20);
+            Tank tank2 = new Tank(30, 160, 50);
+            Tank userTank = new Tank(300, 100, 0);
+            _data.Tanks.Add(tank1);
+            _data.Tanks.Add(tank2);
+            _data.Tanks.Add(userTank);
+            gameControl1.Data = _data;
+            gameControl1.Activate();
+        }
     }
 }

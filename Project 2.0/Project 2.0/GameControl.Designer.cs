@@ -1,13 +1,13 @@
 ﻿namespace Project_2._0
 {
-    partial class Form1
+    partial class GameControl
     {
-        /// <summary>
+        /// <summary> 
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
+        /// <summary> 
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
@@ -20,41 +20,29 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
+        #region Component Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
+        /// <summary> 
+        /// Required method for Designer support - do not modify 
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            this.gameControl1 = new Project_2._0.GameControl();
             this.SuspendLayout();
             // 
-            // gameControl1
-            // 
-            this.gameControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gameControl1.Location = new System.Drawing.Point(0, 0);
-            this.gameControl1.Name = "gameControl1";
-            this.gameControl1.Size = new System.Drawing.Size(484, 462);
-            this.gameControl1.TabIndex = 0;
-            // 
-            // Form1
+            // GameControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(484, 462);
-            this.Controls.Add(this.gameControl1);
-            this.Name = "Form1";
-            this.Text = "Project 2.0";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Name = "GameControl";
+            this.Size = new System.Drawing.Size(456, 359);
+            this.Load += new System.EventHandler(this.GameControl_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameControl_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.GameControl_KeyUp);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private GameControl gameControl1;
     }
 }
-
