@@ -442,6 +442,9 @@ namespace Project_2._0
 
 			foreach (var tank in _data.Tanks)
 			{
+				if (tank.Health <= 0)
+					continue;
+
 				DrawTank(e.Graphics, tank, tank.DColour, tank.FColour);
 			}
 
@@ -546,11 +549,48 @@ namespace Project_2._0
 
 			foreach (var tank in _data.Tanks)
 			{
-				// TODO: Update required for old location
+				var originalLocation = new PointF(tank.X, tank.Y);
 
 				tank.MoveTank((float)elapsedMilliseconds / 1000F);
 
-				// TODO: Update required for new location
+				var newLocation = new PointF(tank.X, tank.Y);
+
+				var velocity = new Vector(newLocation.X - originalLocation.X, newLocation.Y - originalLocation.Y);
+
+				var tankPolygon = new Polygon();
+				tankPolygon.Points.Add(new Vector(-20, -20));
+				tankPolygon.Points.Add(new Vector(20, -20));
+				tankPolygon.Points.Add(new Vector(20, 25));
+				tankPolygon.Points.Add(new Vector(-20, 25));
+				tankPolygon.Offset(tank.X, tank.Y);
+				tankPolygon.BuildEdges();
+
+				// Check for collisions with other tanks.
+
+				foreach(var otherTank in _data.Tanks)
+				{
+					if (otherTank == tank)
+						continue;
+
+					var otherTankPolygon = new Polygon();
+					otherTankPolygon.Points.Add(new Vector(-20, -20));
+					otherTankPolygon.Points.Add(new Vector(20, -20));
+					otherTankPolygon.Points.Add(new Vector(20, 25));
+					otherTankPolygon.Points.Add(new Vector(-20, 25));
+					otherTankPolygon.Offset(otherTank.X, otherTank.Y);
+					otherTankPolygon.BuildEdges();
+
+					PolygonCollisionResult r = Collisions.PolygonCollision(tankPolygon, otherTankPolygon, velocity);
+
+					if (r.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+
+						tank.X += r.MinimumTranslationVector.X;
+						tank.Y += r.MinimumTranslationVector.Y;
+						break;
+					}
+				}
 			}
 
 			for (var i = 0; i < _data.Shells.Count; i++)
@@ -558,7 +598,52 @@ namespace Project_2._0
 				// TODO: Update required for old location
 
 				var shell = _data.Shells[i];
+
+				var originalLocation = new PointF(shell.X, shell.Y);
+
 				shell.MoveShell((float)elapsedMilliseconds / 1000F);
+
+				var newLocation = new PointF(shell.X, shell.Y);
+
+				var velocity = new Vector(newLocation.X - originalLocation.X, newLocation.Y - originalLocation.Y);
+
+				// Find out if this overlaps any tank except its owner
+
+				var shellPolygon = new Polygon();
+				shellPolygon.Points.Add(new Vector(-1, -1));
+				shellPolygon.Points.Add(new Vector(1, -1));
+				shellPolygon.Points.Add(new Vector(1, 1));
+				shellPolygon.Points.Add(new Vector(-1, 1));
+				shellPolygon.Offset(originalLocation.X, originalLocation.Y);
+				shellPolygon.BuildEdges();
+
+				foreach(var tank in _data.Tanks)
+				{
+					if (tank == shell.Tank)
+						continue;
+
+					var tankPolygon = new Polygon();
+					tankPolygon.Points.Add(new Vector(-20, -20));
+					tankPolygon.Points.Add(new Vector(20, -20));
+					tankPolygon.Points.Add(new Vector(20, 25));
+					tankPolygon.Points.Add(new Vector(-20, 25));
+					tankPolygon.Offset(tank.X, tank.Y);
+					tankPolygon.BuildEdges();
+
+					PolygonCollisionResult r = Collisions.PolygonCollision(shellPolygon, tankPolygon, velocity);
+
+					if (r.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+						// No need to do a translation, this is a hit!
+						tank.Health -= 35;
+						shell.Life = 0;
+						break;
+					}
+				}
+
+
+
 				shell.Life -= (float)elapsedMilliseconds / 1000F;
 
 				if (shell.Life <= 0)
