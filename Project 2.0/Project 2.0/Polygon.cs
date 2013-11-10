@@ -12,6 +12,28 @@ namespace Project_2._0
 		private List<Vector> points = new List<Vector>();
 		private List<Vector> edges = new List<Vector>();
 
+		public void Rotate(float angle)
+		{
+			// foreach point, use angle to rotate around origin (0, 0)
+
+			for (int i = 0; i < points.Count; i++)
+			{
+
+				var ox = 0;
+				var oy = 0;
+				var pnt = points[i];
+				var px = pnt.X;
+				var py = pnt.Y;
+		
+				// rotate and update value
+				
+				pnt.X = (float)(Math.Cos(angle) * (px - ox) - Math.Sin(angle) * (py - oy) + ox);
+				pnt.Y = (float)(Math.Sin(angle) * (px - ox) + Math.Cos(angle) * (py - oy) + oy);
+				points[i] = pnt;
+			}
+
+		}
+
 		public void BuildEdges()
 		{
 			Vector p1;

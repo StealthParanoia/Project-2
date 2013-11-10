@@ -562,6 +562,7 @@ namespace Project_2._0
 				tankPolygon.Points.Add(new Vector(20, -20));
 				tankPolygon.Points.Add(new Vector(20, 25));
 				tankPolygon.Points.Add(new Vector(-20, 25));
+				tankPolygon.Rotate(tank.Angle);
 				tankPolygon.Offset(tank.X, tank.Y);
 				tankPolygon.BuildEdges();
 
@@ -569,7 +570,7 @@ namespace Project_2._0
 
 				foreach(var otherTank in _data.Tanks)
 				{
-					if (otherTank == tank)
+					if (otherTank == tank || otherTank.Health <= 0)
 						continue;
 
 					var otherTankPolygon = new Polygon();
@@ -577,6 +578,7 @@ namespace Project_2._0
 					otherTankPolygon.Points.Add(new Vector(20, -20));
 					otherTankPolygon.Points.Add(new Vector(20, 25));
 					otherTankPolygon.Points.Add(new Vector(-20, 25));
+					otherTankPolygon.Rotate(otherTank.Angle);
 					otherTankPolygon.Offset(otherTank.X, otherTank.Y);
 					otherTankPolygon.BuildEdges();
 
@@ -598,25 +600,12 @@ namespace Project_2._0
 				// TODO: Update required for old location
 
 				var shell = _data.Shells[i];
-
-				var originalLocation = new PointF(shell.X, shell.Y);
-
-				shell.MoveShell((float)elapsedMilliseconds / 1000F);
-
-				var newLocation = new PointF(shell.X, shell.Y);
-
-				var velocity = new Vector(newLocation.X - originalLocation.X, newLocation.Y - originalLocation.Y);
+				
+				var velocity = shell.GetMovementVector((float)elapsedMilliseconds/1000F);
 
 				// Find out if this overlaps any tank except its owner
 
-				var shellPolygon = new Polygon();
-				shellPolygon.Points.Add(new Vector(-1, -1));
-				shellPolygon.Points.Add(new Vector(1, -1));
-				shellPolygon.Points.Add(new Vector(1, 1));
-				shellPolygon.Points.Add(new Vector(-1, 1));
-				shellPolygon.Offset(originalLocation.X, originalLocation.Y);
-				shellPolygon.BuildEdges();
-
+				
 				foreach(var tank in _data.Tanks)
 				{
 					if (tank == shell.Tank)
@@ -630,7 +619,7 @@ namespace Project_2._0
 					tankPolygon.Offset(tank.X, tank.Y);
 					tankPolygon.BuildEdges();
 
-					PolygonCollisionResult r = Collisions.PolygonCollision(shellPolygon, tankPolygon, velocity);
+					PolygonCollisionResult r = Collisions.PolygonCollision(shell.shellPolygon, tankPolygon, velocity);
 
 					if (r.WillIntersect)
 					{
@@ -642,7 +631,7 @@ namespace Project_2._0
 					}
 				}
 
-
+				shell.MoveShell(velocity);
 
 				shell.Life -= (float)elapsedMilliseconds / 1000F;
 

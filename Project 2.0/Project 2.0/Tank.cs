@@ -24,7 +24,7 @@ namespace Project_2._0
 			FColour = System.Drawing.Brushes.Purple;
 		}
 
-		public Tank() {	}
+		public Tank() { }
 
 		public void MoveTank(float secs)
 		{
@@ -39,12 +39,9 @@ namespace Project_2._0
 		public Shell FireShell()
 		{
 
-			var shell = new Shell();
-			shell.Angle = this.Angle;
+			var shell = new Shell(this.X, this.Y, this.Angle);
 			shell.Speed = this.Speed + 200;
 			shell.Tank = this;
-			shell.X = this.X;
-			shell.Y = this.Y;
 			shell.Life = 2;
 
 			Reload = 3;
@@ -53,6 +50,6 @@ namespace Project_2._0
 
 		}
 
-		
+
 	}
 }
