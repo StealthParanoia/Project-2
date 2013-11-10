@@ -58,6 +58,7 @@
       <DependentUpon>GameControl.cs</DependentUpon>
     </Compile>
     <Compile Include="GameData.cs" />
+    <Compile Include="GameSettings.cs" />
     <Compile Include="InvokeHelper.cs" />
     <Compile Include="Polygon.cs" />
     <Compile Include="Program.cs" />

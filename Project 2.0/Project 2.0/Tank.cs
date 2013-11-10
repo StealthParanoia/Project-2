@@ -36,15 +36,15 @@ namespace Project_2._0
 			Y += (float)cosine * secs * Speed;
 		}
 
-		public Shell FireShell()
+		public Shell FireShell(GameSettings settings)
 		{
 
 			var shell = new Shell(this.X, this.Y, this.Angle);
-			shell.Speed = this.Speed + 200;
+			shell.Speed = this.Speed + settings.ShellSpeed;
 			shell.Tank = this;
-			shell.Life = 2;
+			shell.Life = settings.ShellLife;
 
-			Reload = 3;
+			Reload = settings.ReloadTime;
 
 			return shell;
 

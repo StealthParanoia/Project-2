@@ -26,9 +26,11 @@ namespace Project_2._0
 				var py = pnt.Y;
 		
 				// rotate and update value
-				
-				pnt.X = (float)(Math.Cos(angle) * (px - ox) - Math.Sin(angle) * (py - oy) + ox);
-				pnt.Y = (float)(Math.Sin(angle) * (px - ox) + Math.Cos(angle) * (py - oy) + oy);
+
+				var radians = (angle / 180) * Math.PI;
+
+				pnt.X = (float)(Math.Cos(radians) * (px - ox) - Math.Sin(radians) * (py - oy) + ox);
+				pnt.Y = (float)(Math.Sin(radians) * (px - ox) + Math.Cos(radians) * (py - oy) + oy);
 				points[i] = pnt;
 			}
 

@@ -30,6 +30,8 @@ namespace Project_2._0
 			_data.Tanks.Add(userTank);
 			gameControl1.Data = _data;
 			gameControl1.Activate();
+			this.BackColor = Color.Black;
+			this.WindowState = FormWindowState.Maximized;
 		}
 
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)

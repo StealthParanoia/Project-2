@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Diagnostics;
+using System.Drawing.Drawing2D;
 
 namespace Project_2._0
 {
@@ -440,6 +441,14 @@ namespace Project_2._0
 
 			if (_data == null) { return; }
 
+
+			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+			foreach (var shell in _data.Shells)
+			{
+				DrawShell(e.Graphics, shell);
+			}
+
 			foreach (var tank in _data.Tanks)
 			{
 				if (tank.Health <= 0)
@@ -448,10 +457,6 @@ namespace Project_2._0
 				DrawTank(e.Graphics, tank, tank.DColour, tank.FColour);
 			}
 
-			foreach (var shell in _data.Shells)
-			{
-				DrawShell(e.Graphics, shell);
-			}
 
 
 		}
@@ -461,7 +466,7 @@ namespace Project_2._0
 			g.TranslateTransform(t.X, t.Y);
 			g.RotateTransform(t.Angle);
 
-			var tankChassis = new Rectangle(-20, -20, 40, 45);
+			var tankChassis = new Rectangle(-20, -20, 40, 40);
 			g.DrawRectangle(dc, tankChassis);
 			g.FillRectangle(fc, tankChassis);
 
@@ -481,7 +486,7 @@ namespace Project_2._0
 			g.TranslateTransform(s.X, s.Y);
 			g.RotateTransform(s.Angle);
 
-			var tankShell = new Rectangle(0, 20, 2, 10);
+			var tankShell = new Rectangle(0, 5, 2, 10);
 			g.DrawRectangle(Pens.Yellow, tankShell);
 			g.FillRectangle(Brushes.Yellow, tankShell);
 
@@ -501,7 +506,7 @@ namespace Project_2._0
 		{
 			if (_leftPressed)
 			{
-				_data.Tanks[2].Angle -= (float)(elapsedMilliseconds / 1000) * 50;
+				_data.Tanks[2].Angle -= (float)(elapsedMilliseconds / 1000) * _data.Settings.TurnSpeed;
 
 				if (_data.Tanks[2].Angle < 0)
 				{
@@ -511,7 +516,7 @@ namespace Project_2._0
 
 			if (_rightPressed)
 			{
-				_data.Tanks[2].Angle += (float)(elapsedMilliseconds / 1000) * 50;
+				_data.Tanks[2].Angle += (float)(elapsedMilliseconds / 1000) * _data.Settings.TurnSpeed;
 
 				if (_data.Tanks[2].Angle > 360)
 				{
@@ -521,24 +526,24 @@ namespace Project_2._0
 
 			if (_upPressed)
 			{
-				_data.Tanks[2].Speed += (float)(elapsedMilliseconds / 1000) * 50;
+				_data.Tanks[2].Speed += (float)(elapsedMilliseconds / 1000) * _data.Settings.Acceleration;
 
-				if (_data.Tanks[2].Speed > 50)
-					_data.Tanks[2].Speed = 50;
+				if (_data.Tanks[2].Speed > _data.Settings.MaxSpeed)
+					_data.Tanks[2].Speed = _data.Settings.MaxSpeed;
 			}
 
 			if (_downPressed)
 			{
-				_data.Tanks[2].Speed -= (float)(elapsedMilliseconds / 1000) * 50;
+				_data.Tanks[2].Speed -= (float)(elapsedMilliseconds / 1000) * _data.Settings.Deceleration;
 
-				if (_data.Tanks[2].Speed < -25)
-					_data.Tanks[2].Speed = -25;
+				if (_data.Tanks[2].Speed < -_data.Settings.MaxReverseSpeed)
+					_data.Tanks[2].Speed = -_data.Settings.MaxReverseSpeed;
 			}
 			if (_spacePressed)
 			{
 				if (_data.Tanks[2].Reload <= 0)
 				{
-					_data.Shells.Add(_data.Tanks[2].FireShell());				
+					_data.Shells.Add(_data.Tanks[2].FireShell(_data.Settings));				
 				}				
 			}
 
@@ -560,8 +565,8 @@ namespace Project_2._0
 				var tankPolygon = new Polygon();
 				tankPolygon.Points.Add(new Vector(-20, -20));
 				tankPolygon.Points.Add(new Vector(20, -20));
-				tankPolygon.Points.Add(new Vector(20, 25));
-				tankPolygon.Points.Add(new Vector(-20, 25));
+				tankPolygon.Points.Add(new Vector(20, 20));
+				tankPolygon.Points.Add(new Vector(-20, 20));
 				tankPolygon.Rotate(tank.Angle);
 				tankPolygon.Offset(tank.X, tank.Y);
 				tankPolygon.BuildEdges();
@@ -576,8 +581,8 @@ namespace Project_2._0
 					var otherTankPolygon = new Polygon();
 					otherTankPolygon.Points.Add(new Vector(-20, -20));
 					otherTankPolygon.Points.Add(new Vector(20, -20));
-					otherTankPolygon.Points.Add(new Vector(20, 25));
-					otherTankPolygon.Points.Add(new Vector(-20, 25));
+					otherTankPolygon.Points.Add(new Vector(20, 20));
+					otherTankPolygon.Points.Add(new Vector(-20, 20));
 					otherTankPolygon.Rotate(otherTank.Angle);
 					otherTankPolygon.Offset(otherTank.X, otherTank.Y);
 					otherTankPolygon.BuildEdges();
@@ -588,8 +593,24 @@ namespace Project_2._0
 					{
 						//playerTranslation = velocity + r.MinimumTranslationVector;
 
-						tank.X += r.MinimumTranslationVector.X;
-						tank.Y += r.MinimumTranslationVector.Y;
+						tank.X += velocity.X + r.MinimumTranslationVector.X / 2.0F;
+						tank.Y += velocity.Y + r.MinimumTranslationVector.Y / 2.0F;
+
+						otherTank.X -= r.MinimumTranslationVector.X / 2.0F;
+						otherTank.Y -= r.MinimumTranslationVector.Y / 2.0F;
+
+						// Slow the tank down since it's hit it.
+
+						if (tank.Speed > 0)
+						{
+							tank.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
+
+							if (tank.Speed < 0)
+							{
+								tank.Speed = 0;
+							}
+						}
+
 						break;
 					}
 				}
@@ -614,8 +635,9 @@ namespace Project_2._0
 					var tankPolygon = new Polygon();
 					tankPolygon.Points.Add(new Vector(-20, -20));
 					tankPolygon.Points.Add(new Vector(20, -20));
-					tankPolygon.Points.Add(new Vector(20, 25));
-					tankPolygon.Points.Add(new Vector(-20, 25));
+					tankPolygon.Points.Add(new Vector(20, 20));
+					tankPolygon.Points.Add(new Vector(-20, 20));
+					tankPolygon.Rotate(tank.Angle);
 					tankPolygon.Offset(tank.X, tank.Y);
 					tankPolygon.BuildEdges();
 
@@ -625,7 +647,7 @@ namespace Project_2._0
 					{
 						//playerTranslation = velocity + r.MinimumTranslationVector;
 						// No need to do a translation, this is a hit!
-						tank.Health -= 35;
+						tank.Health -= _data.Settings.HitDamage;
 						shell.Life = 0;
 						break;
 					}
