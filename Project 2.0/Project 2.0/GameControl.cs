@@ -15,6 +15,9 @@ namespace Project_2._0
 {
 	public partial class GameControl : UserControl
 	{
+
+		// Jordan TODO - Background images, change models, visual effect upon shell contact
+
 		#region Constructors
 
 		public GameControl()
@@ -452,9 +455,13 @@ namespace Project_2._0
 			foreach (var tank in _data.Tanks)
 			{
 				if (tank.Health <= 0)
+				{
+					DrawWreckage(e.Graphics, tank);
 					continue;
+				}
 
 				DrawTank(e.Graphics, tank, tank.DColour, tank.FColour);
+
 			}
 
 
@@ -492,6 +499,18 @@ namespace Project_2._0
 
 			g.ResetTransform();
 
+		}
+
+		private void DrawWreckage(Graphics g, Tank t)
+		{
+			g.TranslateTransform(t.X, t.Y);
+			g.RotateTransform(t.Angle);
+
+			var tankWreckage = new Rectangle(-20, -20, 40, 40);
+			g.DrawRectangle(Pens.Brown, tankWreckage);
+			g.FillRectangle(Brushes.Brown, tankWreckage);
+
+			g.ResetTransform();
 		}
 
 		#endregion
@@ -575,7 +594,7 @@ namespace Project_2._0
 
 				foreach(var otherTank in _data.Tanks)
 				{
-					if (otherTank == tank || otherTank.Health <= 0)
+					if (otherTank == tank)
 						continue;
 
 					var otherTankPolygon = new Polygon();
@@ -593,25 +612,33 @@ namespace Project_2._0
 					{
 						//playerTranslation = velocity + r.MinimumTranslationVector;
 
-						tank.X += velocity.X + r.MinimumTranslationVector.X / 2.0F;
-						tank.Y += velocity.Y + r.MinimumTranslationVector.Y / 2.0F;
+							tank.X += velocity.X + r.MinimumTranslationVector.X / 2.0F;
+							tank.Y += velocity.Y + r.MinimumTranslationVector.Y / 2.0F;
 
-						otherTank.X -= r.MinimumTranslationVector.X / 2.0F;
-						otherTank.Y -= r.MinimumTranslationVector.Y / 2.0F;
+							otherTank.X -= r.MinimumTranslationVector.X / 2.0F;
+							otherTank.Y -= r.MinimumTranslationVector.Y / 2.0F;
 
-						// Slow the tank down since it's hit it.
+							// Slow the tank down since it's hit it.
 
-						if (tank.Speed > 0)
-						{
-							tank.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
 
-							if (tank.Speed < 0)
+							if (tank.Speed > 0)
 							{
-								tank.Speed = 0;
-							}
-						}
 
-						break;
+								if (tank.Speed > _data.Settings.MaxSpeed / 2)
+								{
+									otherTank.Health -= (tank.Speed - (_data.Settings.MaxSpeed / 2)) * (float) (1000.0 * (elapsedMilliseconds / 100000));
+								}
+								
+								tank.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));								
+
+								if (tank.Speed < 0)
+								{
+									tank.Speed = 0;
+								}
+							}
+
+							break;
+
 					}
 				}
 			}

@@ -20,12 +20,11 @@ namespace Project_2._0
 
 		public float ShellSpeed = 1000;
 
-		public float ShellLife = 3;
+		public float ShellLife = 2;
 
 		public float HitDamage = 35;
 
 		public float ReloadTime = 1;
-
 		
 	}
 }
