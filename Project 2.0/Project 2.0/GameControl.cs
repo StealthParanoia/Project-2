@@ -17,6 +17,8 @@ namespace Project_2._0
 	{
 
 		// Jordan TODO - Background images, change models, visual effect upon shell contact
+		// Adjust the ramming damage and increase the speed at which it slows down
+		// Make the ship look better - need to tell which end of the ship you're controlling (add a bowsprit, et cetera)
 
 		#region Constructors
 
@@ -444,23 +446,22 @@ namespace Project_2._0
 
 			if (_data == null) { return; }
 
-
 			e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-			foreach (var shell in _data.Shells)
+			foreach (var cannonball in _data.Cannonballs)
 			{
-				DrawShell(e.Graphics, shell);
+				DrawCannonball(e.Graphics, cannonball);
 			}
 
-			foreach (var tank in _data.Tanks)
+			foreach (var ship in _data.Ships)
 			{
-				if (tank.Health <= 0)
+				if (ship.Health <= 0)
 				{
-					DrawWreckage(e.Graphics, tank);
+					DrawWreckage(e.Graphics, ship);
 					continue;
 				}
 
-				DrawTank(e.Graphics, tank, tank.DColour, tank.FColour);
+				DrawShip(e.Graphics, ship, ship.DColour, ship.FColour);
 
 			}
 
@@ -468,47 +469,66 @@ namespace Project_2._0
 
 		}
 
-		private void DrawTank(Graphics g, Tank t, Pen dc, Brush fc)
+		private void DrawShip(Graphics g, Ship t, Pen dc, Brush fc)
 		{
+
+			// Make it look like a ship
+
+			Pen drawingPen = new Pen(fc);
+			Point[] bowPoints = new Point[4] { new Point(20, 20), new Point(0, 50), new Point(0, 50), new Point(-20, 20) };
+			Point[] sternPoints = new Point[4] { new Point(-20, -20), new Point(0, -50), new Point(0, -50), new Point(20, -20) };
+
 			g.TranslateTransform(t.X, t.Y);
 			g.RotateTransform(t.Angle);
 
-			var tankChassis = new Rectangle(-20, -20, 40, 40);
-			g.DrawRectangle(dc, tankChassis);
-			g.FillRectangle(fc, tankChassis);
+			// Ship's Hull
 
-			var tankTurret = new Rectangle(-20, -20, 40, 40);
-			g.DrawEllipse(Pens.Red, tankTurret);
-			g.FillEllipse(Brushes.Red, tankTurret);
+			var shipHull = new Rectangle(-20, -20, 40, 40);
+			g.DrawRectangle(dc, shipHull);
+			g.FillRectangle(fc, shipHull);
 
-			var tankNozzle = new Rectangle(0, 20, 2, 30);
-			g.DrawRectangle(Pens.Blue, tankNozzle);
-			g.FillRectangle(Brushes.Blue, tankNozzle);
+			// Ship's Bow
+
+			g.DrawLine(drawingPen, bowPoints[0], bowPoints[1]);
+			g.DrawLine(drawingPen, bowPoints[2], bowPoints[3]);
+			g.FillPolygon(fc, bowPoints);
+
+			// Ship's Stern
+
+			g.DrawLine(drawingPen, sternPoints[0], sternPoints[1]);
+			g.DrawLine(drawingPen, sternPoints[2], sternPoints[3]);
+			g.FillPolygon(fc, sternPoints);
+			
+
+			// TODO - Re-draw this
+
+			/* var shipCannon = new Rectangle(0, 20, 2, 30);
+			g.DrawRectangle(Pens.Blue, shipCannon);
+			g.FillRectangle(new SolidBrush(Color.Blue), shipCannon); */
 
 			g.ResetTransform();
 		}
 
-		private void DrawShell(Graphics g, Shell s)
+		private void DrawCannonball(Graphics g, Cannonball s)
 		{
 			g.TranslateTransform(s.X, s.Y);
 			g.RotateTransform(s.Angle);
 
-			var tankShell = new Rectangle(0, 5, 2, 10);
-			g.DrawRectangle(Pens.Yellow, tankShell);
-			g.FillRectangle(Brushes.Yellow, tankShell);
+			var shipCannonball = new Rectangle(0, 5, 2, 10);
+			g.DrawRectangle(Pens.Yellow, shipCannonball);
+			g.FillRectangle(new SolidBrush(Color.Yellow), shipCannonball);
 
 			g.ResetTransform();
-
 		}
 
-		private void DrawWreckage(Graphics g, Tank t)
+		private void DrawWreckage(Graphics g, Ship t)
 		{
 			g.TranslateTransform(t.X, t.Y);
 			g.RotateTransform(t.Angle);
 
-			var tankWreckage = new Rectangle(-20, -20, 40, 40);
-			g.DrawRectangle(Pens.Brown, tankWreckage);
-			g.FillRectangle(Brushes.Brown, tankWreckage);
+			var shipWreckage = new Rectangle(-20, -20, 40, 40);
+			g.DrawRectangle(Pens.Brown, shipWreckage);
+			g.FillRectangle(new SolidBrush(Color.Brown), shipWreckage);
 
 			g.ResetTransform();
 		}
@@ -525,59 +545,59 @@ namespace Project_2._0
 		{
 			if (_leftPressed)
 			{
-				_data.Tanks[2].Angle -= (float)(elapsedMilliseconds / 1000) * _data.Settings.TurnSpeed;
+				_data.Ships[2].Angle -= (float)(elapsedMilliseconds / 1000) * _data.Settings.TurnSpeed;
 
-				if (_data.Tanks[2].Angle < 0)
+				if (_data.Ships[2].Angle < 0)
 				{
-					_data.Tanks[2].Angle += 360;
+					_data.Ships[2].Angle += 360;
 				}
 			}
 
 			if (_rightPressed)
 			{
-				_data.Tanks[2].Angle += (float)(elapsedMilliseconds / 1000) * _data.Settings.TurnSpeed;
+				_data.Ships[2].Angle += (float)(elapsedMilliseconds / 1000) * _data.Settings.TurnSpeed;
 
-				if (_data.Tanks[2].Angle > 360)
+				if (_data.Ships[2].Angle > 360)
 				{
-					_data.Tanks[2].Angle -= 360;
+					_data.Ships[2].Angle -= 360;
 				}
 			}
 
 			if (_upPressed)
 			{
-				_data.Tanks[2].Speed += (float)(elapsedMilliseconds / 1000) * _data.Settings.Acceleration;
+				_data.Ships[2].Speed += (float)(elapsedMilliseconds / 1000) * _data.Settings.Acceleration;
 
-				if (_data.Tanks[2].Speed > _data.Settings.MaxSpeed)
-					_data.Tanks[2].Speed = _data.Settings.MaxSpeed;
+				if (_data.Ships[2].Speed > _data.Settings.MaxSpeed)
+					_data.Ships[2].Speed = _data.Settings.MaxSpeed;
 			}
 
 			if (_downPressed)
 			{
-				_data.Tanks[2].Speed -= (float)(elapsedMilliseconds / 1000) * _data.Settings.Deceleration;
+				_data.Ships[2].Speed -= (float)(elapsedMilliseconds / 1000) * _data.Settings.Deceleration;
 
-				if (_data.Tanks[2].Speed < -_data.Settings.MaxReverseSpeed)
-					_data.Tanks[2].Speed = -_data.Settings.MaxReverseSpeed;
+				if (_data.Ships[2].Speed < -_data.Settings.MaxReverseSpeed)
+					_data.Ships[2].Speed = -_data.Settings.MaxReverseSpeed;
 			}
 			if (_spacePressed)
 			{
-				if (_data.Tanks[2].Reload <= 0)
+				if (_data.Ships[2].Reload <= 0)
 				{
-					_data.Shells.Add(_data.Tanks[2].FireShell(_data.Settings));				
+					_data.Cannonballs.Add(_data.Ships[2].FireCannonball(_data.Settings));				
 				}				
 			}
 
-			if (_data.Tanks[2].Reload > 0)
+			if (_data.Ships[2].Reload > 0)
 			{
-				_data.Tanks[2].Reload -= (float)elapsedMilliseconds / 1000F;
+				_data.Ships[2].Reload -= (float)elapsedMilliseconds / 1000F;
 			}
 
-			foreach (var tank in _data.Tanks)
+			foreach (var ship in _data.Ships)
 			{
-				var originalLocation = new PointF(tank.X, tank.Y);
+				var originalLocation = new PointF(ship.X, ship.Y);
 
-				tank.MoveTank((float)elapsedMilliseconds / 1000F);
+				ship.MoveShip((float)elapsedMilliseconds / 1000F);
 
-				var newLocation = new PointF(tank.X, tank.Y);
+				var newLocation = new PointF(ship.X, ship.Y);
 
 				var velocity = new Vector(newLocation.X - originalLocation.X, newLocation.Y - originalLocation.Y);
 
@@ -586,54 +606,75 @@ namespace Project_2._0
 				tankPolygon.Points.Add(new Vector(20, -20));
 				tankPolygon.Points.Add(new Vector(20, 20));
 				tankPolygon.Points.Add(new Vector(-20, 20));
-				tankPolygon.Rotate(tank.Angle);
-				tankPolygon.Offset(tank.X, tank.Y);
+				tankPolygon.Rotate(ship.Angle);
+				tankPolygon.Offset(ship.X, ship.Y);
 				tankPolygon.BuildEdges();
 
 				// Check for collisions with other tanks.
 
-				foreach(var otherTank in _data.Tanks)
+				foreach(var otherShip in _data.Ships)
 				{
-					if (otherTank == tank)
+					if (otherShip == ship)
 						continue;
 
-					var otherTankPolygon = new Polygon();
-					otherTankPolygon.Points.Add(new Vector(-20, -20));
-					otherTankPolygon.Points.Add(new Vector(20, -20));
-					otherTankPolygon.Points.Add(new Vector(20, 20));
-					otherTankPolygon.Points.Add(new Vector(-20, 20));
-					otherTankPolygon.Rotate(otherTank.Angle);
-					otherTankPolygon.Offset(otherTank.X, otherTank.Y);
-					otherTankPolygon.BuildEdges();
+					var otherShipPolygon_hull = new Polygon();
+					otherShipPolygon_hull.Points.Add(new Vector(-20, -20));
+					otherShipPolygon_hull.Points.Add(new Vector(20, -20));
+					otherShipPolygon_hull.Points.Add(new Vector(20, 20));
+					otherShipPolygon_hull.Points.Add(new Vector(-20, 20));
+					otherShipPolygon_hull.Rotate(otherShip.Angle);
+					otherShipPolygon_hull.Offset(otherShip.X, otherShip.Y);
+					otherShipPolygon_hull.BuildEdges();
 
-					PolygonCollisionResult r = Collisions.PolygonCollision(tankPolygon, otherTankPolygon, velocity);
+					// Point(20, 20), new Point(0, 50), new Point(0, 50), new Point(-20, 20)
+
+					var otherShipPolygon_bow = new Polygon();
+					otherShipPolygon_bow.Points.Add(new Vector(20, 20));
+					otherShipPolygon_bow.Points.Add(new Vector(0, 50));
+					otherShipPolygon_bow.Points.Add(new Vector(0, 50));
+					otherShipPolygon_bow.Points.Add(new Vector(-20, 20));
+					otherShipPolygon_bow.Rotate(otherShip.Angle);
+					otherShipPolygon_bow.Offset(otherShip.X, otherShip.Y);
+					otherShipPolygon_bow.BuildEdges();
+
+					var otherShipPolygon_stern = new Polygon();
+					otherShipPolygon_stern.Points.Add(new Vector(-20, -20));
+					otherShipPolygon_stern.Points.Add(new Vector(0, -50));
+					otherShipPolygon_stern.Points.Add(new Vector(0, -50));
+					otherShipPolygon_stern.Points.Add(new Vector(20, -20));
+					otherShipPolygon_stern.Rotate(otherShip.Angle);
+					otherShipPolygon_stern.Offset(otherShip.X, otherShip.Y);
+					otherShipPolygon_stern.BuildEdges();
+
+					// TODO - Add otherShipPolygon_bow, otherShipPolygon_stern, to a Polygon collision detection
+
+					PolygonCollisionResult r = Collisions.PolygonCollision(tankPolygon, otherShipPolygon_hull, velocity);
 
 					if (r.WillIntersect)
 					{
 						//playerTranslation = velocity + r.MinimumTranslationVector;
 
-							tank.X += velocity.X + r.MinimumTranslationVector.X / 2.0F;
-							tank.Y += velocity.Y + r.MinimumTranslationVector.Y / 2.0F;
+							ship.X += velocity.X + r.MinimumTranslationVector.X / 2.0F;
+							ship.Y += velocity.Y + r.MinimumTranslationVector.Y / 2.0F;
 
-							otherTank.X -= r.MinimumTranslationVector.X / 2.0F;
-							otherTank.Y -= r.MinimumTranslationVector.Y / 2.0F;
+							otherShip.X -= r.MinimumTranslationVector.X / 2.0F;
+							otherShip.Y -= r.MinimumTranslationVector.Y / 2.0F;
 
 							// Slow the tank down since it's hit it.
 
-
-							if (tank.Speed > 0)
+							if (ship.Speed > 0)
 							{
 
-								if (tank.Speed > _data.Settings.MaxSpeed / 2)
+								if (ship.Speed > _data.Settings.MaxSpeed / 2)
 								{
-									otherTank.Health -= (tank.Speed - (_data.Settings.MaxSpeed / 2)) * (float) (1000.0 * (elapsedMilliseconds / 100000));
+									otherShip.Health -= (ship.Speed - (_data.Settings.MaxSpeed / 2)) * (float) (1000.0 * (elapsedMilliseconds / 100000));
 								}
 								
-								tank.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));								
+								ship.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));								
 
-								if (tank.Speed < 0)
+								if (ship.Speed < 0)
 								{
-									tank.Speed = 0;
+									ship.Speed = 0;
 								}
 							}
 
@@ -643,50 +684,70 @@ namespace Project_2._0
 				}
 			}
 
-			for (var i = 0; i < _data.Shells.Count; i++)
+			for (var i = 0; i < _data.Cannonballs.Count; i++)
 			{
 				// TODO: Update required for old location
 
-				var shell = _data.Shells[i];
+				var shell = _data.Cannonballs[i];
 				
 				var velocity = shell.GetMovementVector((float)elapsedMilliseconds/1000F);
 
 				// Find out if this overlaps any tank except its owner
 
 				
-				foreach(var tank in _data.Tanks)
+				foreach(var ship in _data.Ships)
 				{
-					if (tank == shell.Tank)
+					if (ship == shell.Ship)
 						continue;
 
-					var tankPolygon = new Polygon();
-					tankPolygon.Points.Add(new Vector(-20, -20));
-					tankPolygon.Points.Add(new Vector(20, -20));
-					tankPolygon.Points.Add(new Vector(20, 20));
-					tankPolygon.Points.Add(new Vector(-20, 20));
-					tankPolygon.Rotate(tank.Angle);
-					tankPolygon.Offset(tank.X, tank.Y);
-					tankPolygon.BuildEdges();
+					var shipPolygon_hull = new Polygon();
+					shipPolygon_hull.Points.Add(new Vector(-20, -20));
+					shipPolygon_hull.Points.Add(new Vector(20, -20));
+					shipPolygon_hull.Points.Add(new Vector(20, 20));
+					shipPolygon_hull.Points.Add(new Vector(-20, 20));
+					shipPolygon_hull.Rotate(ship.Angle);
+					shipPolygon_hull.Offset(ship.X, ship.Y);
+					shipPolygon_hull.BuildEdges();
 
-					PolygonCollisionResult r = Collisions.PolygonCollision(shell.shellPolygon, tankPolygon, velocity);
+					var shipPolygon_bow = new Polygon();
+					shipPolygon_bow.Points.Add(new Vector(20, 20));
+					shipPolygon_bow.Points.Add(new Vector(0, 50));
+					shipPolygon_bow.Points.Add(new Vector(0, 50));
+					shipPolygon_bow.Points.Add(new Vector(-20, 20));
+					shipPolygon_bow.Rotate(ship.Angle);
+					shipPolygon_bow.Offset(ship.X, ship.Y);
+					shipPolygon_bow.BuildEdges();
+
+					var shipPolygon_stern = new Polygon();
+					shipPolygon_stern.Points.Add(new Vector(-20, -20));
+					shipPolygon_stern.Points.Add(new Vector(0, -50));
+					shipPolygon_stern.Points.Add(new Vector(0, -50));
+					shipPolygon_stern.Points.Add(new Vector(20, -20));
+					shipPolygon_stern.Rotate(ship.Angle);
+					shipPolygon_stern.Offset(ship.X, ship.Y);
+					shipPolygon_stern.BuildEdges();
+
+					// TODO - Add shipPolygon_bow, shipPolygon_stern, to a Polygon collision detection 
+
+					PolygonCollisionResult r = Collisions.PolygonCollision(shell.cannonballPolygon, shipPolygon_hull, velocity);
 
 					if (r.WillIntersect)
 					{
 						//playerTranslation = velocity + r.MinimumTranslationVector;
 						// No need to do a translation, this is a hit!
-						tank.Health -= _data.Settings.HitDamage;
+						ship.Health -= _data.Settings.HitDamage;
 						shell.Life = 0;
 						break;
 					}
 				}
 
-				shell.MoveShell(velocity);
+				shell.MoveCannonball(velocity);
 
 				shell.Life -= (float)elapsedMilliseconds / 1000F;
 
 				if (shell.Life <= 0)
 				{
-					_data.Shells.RemoveAt(i);
+					_data.Cannonballs.RemoveAt(i);
 					i--;
 				}
 

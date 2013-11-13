@@ -22,12 +22,12 @@ namespace Project_2._0
 		private void Form1_Load(object sender, EventArgs e)
 		{
 			_data = new GameData();
-			Tank tank1 = new Tank(140, 200, 20);
-			Tank tank2 = new Tank(200, 100, 50);
-			Tank userTank = new Tank(300, 100, 90);
-			_data.Tanks.Add(tank1);
-			_data.Tanks.Add(tank2);
-			_data.Tanks.Add(userTank);
+			Ship tank1 = new Ship(140, 200, 20);
+			Ship tank2 = new Ship(200, 100, 50);
+			Ship userTank = new Ship(300, 100, 0);
+			_data.Ships.Add(tank1);
+			_data.Ships.Add(tank2);
+			_data.Ships.Add(userTank);
 			gameControl1.Data = _data;
 			gameControl1.Activate();
 			this.BackColor = Color.Black;

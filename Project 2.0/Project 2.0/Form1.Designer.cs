@@ -33,7 +33,7 @@
 			// 
 			// gameControl1
 			// 
-			this.gameControl1.BackColor = System.Drawing.Color.DarkGreen;
+			this.gameControl1.BackColor = System.Drawing.Color.Navy;
 			this.gameControl1.Data = null;
 			this.gameControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gameControl1.Location = new System.Drawing.Point(0, 0);

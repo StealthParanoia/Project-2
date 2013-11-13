@@ -7,26 +7,26 @@ using System.Threading.Tasks;
 
 namespace Project_2._0
 {
-	public class Tank
+	public class Ship
 	{
 		public float X, Y, Angle, Speed;
 		public float Health = 100;
 		public float Reload;
 		public Pen DColour;
-		public Brush FColour;
+		public SolidBrush FColour;
 
-		public Tank(int x, int y, float angle)
+		public Ship(int x, int y, float angle)
 		{
 			X = x;
 			Y = y;
 			Angle = angle;
-			DColour = System.Drawing.Pens.Purple;
-			FColour = System.Drawing.Brushes.Purple;
+			DColour = new Pen(Color.FromArgb(13,0,0));
+			FColour = new SolidBrush(Color.FromArgb(25,0,0));
 		}
 
-		public Tank() { }
+		public Ship() { }
 
-		public void MoveTank(float secs)
+		public void MoveShip(float secs)
 		{
 			double sine = Math.Sin(Angle * (Math.PI / 180F));
 			double cosine = Math.Cos(Angle * (Math.PI / 180F));
@@ -36,17 +36,17 @@ namespace Project_2._0
 			Y += (float)cosine * secs * Speed;
 		}
 
-		public Shell FireShell(GameSettings settings)
+		public Cannonball FireCannonball(GameSettings settings)
 		{
 
-			var shell = new Shell(this.X, this.Y, this.Angle);
-			shell.Speed = this.Speed + settings.ShellSpeed;
-			shell.Tank = this;
-			shell.Life = settings.ShellLife;
+			var cannonball = new Cannonball(this.X, this.Y, this.Angle);
+			cannonball.Speed = this.Speed + settings.CannonballSpeed;
+			cannonball.Ship = this;
+			cannonball.Life = settings.CannonballLife;
 
 			Reload = settings.ReloadTime;
 
-			return shell;
+			return cannonball;
 
 		}
 

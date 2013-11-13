@@ -10,7 +10,7 @@ namespace Project_2._0
 	{
 		public GameSettings Settings = new GameSettings();
 
-		public List<Tank> Tanks = new List<Tank>();
-		public List<Shell> Shells = new List<Shell>();
+		public List<Ship> Ships = new List<Ship>();
+		public List<Cannonball> Cannonballs = new List<Cannonball>();
 	}
 }

@@ -6,35 +6,35 @@ using System.Threading.Tasks;
 
 namespace Project_2._0
 {
-	public class Shell
+	public class Cannonball
 	{
 		public float X, Y, Angle, Speed, Life;
-		public Tank Tank;
-		public Polygon shellPolygon = new Polygon();
+		public Ship Ship;
+		public Polygon cannonballPolygon = new Polygon();
 
-		public Shell(float x, float y, float angle)
+		public Cannonball(float x, float y, float angle)
 		{
 			X = x;
 			Y = y;
 			Angle = angle;
 
-			shellPolygon.Points.Add(new Vector(-1, -1));
-			shellPolygon.Points.Add(new Vector(1, -1));
-			shellPolygon.Points.Add(new Vector(1, 1));
-			shellPolygon.Points.Add(new Vector(-1, 1));
-			shellPolygon.Offset(x, y);
-			shellPolygon.BuildEdges();
+			cannonballPolygon.Points.Add(new Vector(-1, -1));
+			cannonballPolygon.Points.Add(new Vector(1, -1));
+			cannonballPolygon.Points.Add(new Vector(1, 1));
+			cannonballPolygon.Points.Add(new Vector(-1, 1));
+			cannonballPolygon.Offset(x, y);
+			cannonballPolygon.BuildEdges();
 
 		}
 
-		public Shell() { }
+		public Cannonball() { }
 
-		public void MoveShell(Vector v)
+		public void MoveCannonball(Vector v)
 		{
 			X += v.X;
 			Y += v.Y;
 
-			shellPolygon.Offset(v.X, v.Y);
+			cannonballPolygon.Offset(v.X, v.Y);
 
 		}
 

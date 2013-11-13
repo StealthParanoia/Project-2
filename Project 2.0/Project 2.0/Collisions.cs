@@ -20,6 +20,10 @@ namespace Project_2._0
 		// Check if polygon A is going to collide with polygon B for the given velocity
 		public static PolygonCollisionResult PolygonCollision(Polygon polygonA, Polygon polygonB, Vector velocity)
 		{
+
+			// TODO - Do stuff with polygonC and polygonD - they're meant to be the bow and stern and take less damage
+			// Get Nick to explain the for loop
+
 			PolygonCollisionResult result = new PolygonCollisionResult();
 			result.Intersect = true;
 			result.WillIntersect = true;

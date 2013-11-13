@@ -18,9 +18,9 @@ namespace Project_2._0
 
 		public float MaxReverseSpeed = 250;
 
-		public float ShellSpeed = 1000;
+		public float CannonballSpeed = 1000;
 
-		public float ShellLife = 2;
+		public float CannonballLife = 2;
 
 		public float HitDamage = 35;
 
