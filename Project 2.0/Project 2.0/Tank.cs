@@ -9,9 +9,10 @@ namespace Project_2._0
 {
 	public class Ship
 	{
-		public float X, Y, Angle, Speed;
+		public float X, Y, Angle, cannonballX, cannonballY, Speed, Reload;
 		public float Health = 100;
-		public float Reload;
+		public bool Hurt, Dead;
+		public bool CanDie = true;
 		public Pen DColour;
 		public SolidBrush FColour;
 
@@ -36,10 +37,9 @@ namespace Project_2._0
 			Y += (float)cosine * secs * Speed;
 		}
 
-		public Cannonball FireCannonball(GameSettings settings)
+		public Cannonball FireCannonball(GameSettings settings, float angle)
 		{
-
-			var cannonball = new Cannonball(this.X, this.Y, this.Angle);
+			var cannonball = new Cannonball(this.X, this.Y, angle);
 			cannonball.Speed = this.Speed + settings.CannonballSpeed;
 			cannonball.Ship = this;
 			cannonball.Life = settings.CannonballLife;

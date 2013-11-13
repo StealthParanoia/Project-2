@@ -18,7 +18,7 @@ namespace Project_2._0
 
 		// Jordan TODO - Background images, change models, visual effect upon shell contact
 		// Adjust the ramming damage and increase the speed at which it slows down
-		// Make the ship look better - need to tell which end of the ship you're controlling (add a bowsprit, et cetera)
+		// Draw the rest of the wreckage (make it only discolour it, not remove it)
 
 		#region Constructors
 
@@ -38,6 +38,8 @@ namespace Project_2._0
 		private bool _deactivated;
 
 		private bool _deactivationRequested;
+
+		private bool _bang;
 
 		private Stopwatch _stopwatch;
 
@@ -67,15 +69,17 @@ namespace Project_2._0
 
 		private int _regionUnionCount;
 
-		private bool _upPressed;
+		private bool _wPressed;
 
-		private bool _downPressed;
+		private bool _sPressed;
 
-		private bool _leftPressed;
+		private bool _aPressed;
 
-		private bool _rightPressed;
+		private bool _dPressed;
 
-		private bool _spacePressed;
+		private bool _qPressed;
+
+		private bool _ePressed;
 
 		#endregion
 
@@ -455,13 +459,32 @@ namespace Project_2._0
 
 			foreach (var ship in _data.Ships)
 			{
+
+				// I thought it would stick because it's done iterating through the loop and has stopped re-drawing things. However, even when it's still iterating, it sticks
+
+				if (ship.Dead == true && ship.CanDie == true)
+				{
+					DrawBigBang(e.Graphics, ship);
+					ship.CanDie = false;
+				}
+
+				DrawShip(e.Graphics, ship, ship.DColour, ship.FColour);
+
+				if (_bang == true && ship.Hurt == true)
+				{
+
+					// TODO - Find a better way of doing it for more than 1 frame
+					
+					DrawBang(e.Graphics, ship);
+					_bang = false;
+					ship.Hurt = false;
+				}
+
 				if (ship.Health <= 0)
 				{
 					DrawWreckage(e.Graphics, ship);
 					continue;
 				}
-
-				DrawShip(e.Graphics, ship, ship.DColour, ship.FColour);
 
 			}
 
@@ -472,10 +495,18 @@ namespace Project_2._0
 		private void DrawShip(Graphics g, Ship t, Pen dc, Brush fc)
 		{
 
-			// Make it look like a ship
+			// TODO - Add a bowsprit, et cetera (make it look more ship-like)
 
-			Pen drawingPen = new Pen(fc);
-			Point[] bowPoints = new Point[4] { new Point(20, 20), new Point(0, 50), new Point(0, 50), new Point(-20, 20) };
+			Pen drawingPen_lightbrown = new Pen(Color.FromArgb(10, 0, 0));
+			SolidBrush fillingPen_lightbrown = new SolidBrush(Color.FromArgb(10, 0, 0));
+
+			Pen drawingPen_grey = new Pen(Color.Gray);
+			SolidBrush fillingPen_grey = new SolidBrush(Color.Gray);
+
+			Pen drawingPen_darkbrown = new Pen(Color.FromArgb(2, 0, 0));
+			SolidBrush fillingPen_darkbrown = new SolidBrush(Color.FromArgb(2, 0, 0));
+
+			Point[] bowPoints = new Point[4] { new Point(20, 20), new Point(0, 60), new Point(0, 60), new Point(-20, 20) };
 			Point[] sternPoints = new Point[4] { new Point(-20, -20), new Point(0, -50), new Point(0, -50), new Point(20, -20) };
 
 			g.TranslateTransform(t.X, t.Y);
@@ -489,46 +520,83 @@ namespace Project_2._0
 
 			// Ship's Bow
 
-			g.DrawLine(drawingPen, bowPoints[0], bowPoints[1]);
-			g.DrawLine(drawingPen, bowPoints[2], bowPoints[3]);
-			g.FillPolygon(fc, bowPoints);
+			g.DrawLine(drawingPen_lightbrown, bowPoints[0], bowPoints[1]);
+			g.DrawLine(drawingPen_lightbrown, bowPoints[2], bowPoints[3]);
+			g.FillPolygon(fillingPen_lightbrown, bowPoints);
 
 			// Ship's Stern
 
-			g.DrawLine(drawingPen, sternPoints[0], sternPoints[1]);
-			g.DrawLine(drawingPen, sternPoints[2], sternPoints[3]);
-			g.FillPolygon(fc, sternPoints);
-			
+			g.DrawLine(drawingPen_lightbrown, sternPoints[0], sternPoints[1]);
+			g.DrawLine(drawingPen_lightbrown, sternPoints[2], sternPoints[3]);
+			g.FillPolygon(fillingPen_lightbrown, sternPoints);
 
-			// TODO - Re-draw this
+			// Ship's first cannon
 
-			/* var shipCannon = new Rectangle(0, 20, 2, 30);
-			g.DrawRectangle(Pens.Blue, shipCannon);
-			g.FillRectangle(new SolidBrush(Color.Blue), shipCannon); */
+			var shipCannon_one = new Rectangle(-21, 0, 2, 2);
+			g.DrawRectangle(drawingPen_grey, shipCannon_one);
+			g.FillRectangle(fillingPen_grey, shipCannon_one);
+
+			// Ship's second cannon
+
+			var shipCannon_two = new Rectangle(20, 0, 2, 2);
+			g.DrawRectangle(drawingPen_grey, shipCannon_two);
+			g.FillRectangle(fillingPen_grey, shipCannon_two);
+
+			// Ship's bowsprit
+
+			var bowsprit = new Rectangle(0, 12, 2, 55);
+			g.DrawEllipse(drawingPen_darkbrown, bowsprit);
+			g.FillEllipse(fillingPen_darkbrown, bowsprit);
 
 			g.ResetTransform();
 		}
 
-		private void DrawCannonball(Graphics g, Cannonball s)
+		private void DrawCannonball(Graphics g, Cannonball c)
+		{
+			g.TranslateTransform(c.X, c.Y);
+			g.RotateTransform(c.Angle);
+
+			var shipCannonball = new Rectangle(0, 5, 5, 5);
+			g.DrawEllipse(Pens.Yellow, shipCannonball);
+			g.FillEllipse(new SolidBrush(Color.Yellow), shipCannonball);
+
+			g.ResetTransform();
+		}
+
+		private void DrawWreckage(Graphics g, Ship s)
 		{
 			g.TranslateTransform(s.X, s.Y);
 			g.RotateTransform(s.Angle);
 
-			var shipCannonball = new Rectangle(0, 5, 2, 10);
-			g.DrawRectangle(Pens.Yellow, shipCannonball);
-			g.FillRectangle(new SolidBrush(Color.Yellow), shipCannonball);
+			var shipWreckage = new Rectangle(-20, -20, 40, 40);
+			g.DrawRectangle(Pens.Brown, shipWreckage);
+			g.FillRectangle(new SolidBrush(Color.Brown), shipWreckage);
 
 			g.ResetTransform();
 		}
 
-		private void DrawWreckage(Graphics g, Ship t)
+		private void DrawBigBang(Graphics g, Ship s)
 		{
-			g.TranslateTransform(t.X, t.Y);
-			g.RotateTransform(t.Angle);
 
-			var shipWreckage = new Rectangle(-20, -20, 40, 40);
-			g.DrawRectangle(Pens.Brown, shipWreckage);
-			g.FillRectangle(new SolidBrush(Color.Brown), shipWreckage);
+			g.TranslateTransform(s.X, s.Y);
+			g.RotateTransform(s.Angle);
+
+			var shipExplosion = new Rectangle(0, 0, 50, 50);
+			g.DrawEllipse(Pens.Red, shipExplosion);
+			g.FillEllipse(new SolidBrush(Color.Red), shipExplosion);
+
+			g.ResetTransform();
+
+		}
+
+		private void DrawBang(Graphics g, Ship s)
+		{
+
+			g.TranslateTransform(s.cannonballX, s.cannonballY);
+			
+			var shipBang = new Rectangle(0, 0, 30, 30);
+			g.DrawEllipse(Pens.Orange, shipBang);
+			g.FillEllipse(new SolidBrush(Color.Orange), shipBang);
 
 			g.ResetTransform();
 		}
@@ -543,7 +611,7 @@ namespace Project_2._0
 		/// <param name="elapsedMilliseconds">Time elapsed.</param>
 		private void PerformAnimationStep(double elapsedMilliseconds)
 		{
-			if (_leftPressed)
+			if (_aPressed)
 			{
 				_data.Ships[2].Angle -= (float)(elapsedMilliseconds / 1000) * _data.Settings.TurnSpeed;
 
@@ -553,7 +621,7 @@ namespace Project_2._0
 				}
 			}
 
-			if (_rightPressed)
+			if (_dPressed)
 			{
 				_data.Ships[2].Angle += (float)(elapsedMilliseconds / 1000) * _data.Settings.TurnSpeed;
 
@@ -563,7 +631,7 @@ namespace Project_2._0
 				}
 			}
 
-			if (_upPressed)
+			if (_wPressed)
 			{
 				_data.Ships[2].Speed += (float)(elapsedMilliseconds / 1000) * _data.Settings.Acceleration;
 
@@ -571,19 +639,26 @@ namespace Project_2._0
 					_data.Ships[2].Speed = _data.Settings.MaxSpeed;
 			}
 
-			if (_downPressed)
+			if (_sPressed)
 			{
 				_data.Ships[2].Speed -= (float)(elapsedMilliseconds / 1000) * _data.Settings.Deceleration;
 
 				if (_data.Ships[2].Speed < -_data.Settings.MaxReverseSpeed)
 					_data.Ships[2].Speed = -_data.Settings.MaxReverseSpeed;
 			}
-			if (_spacePressed)
+			if (_qPressed)
 			{
 				if (_data.Ships[2].Reload <= 0)
 				{
-					_data.Cannonballs.Add(_data.Ships[2].FireCannonball(_data.Settings));				
+					_data.Cannonballs.Add(_data.Ships[2].FireCannonball(_data.Settings, _data.Ships[2].Angle - 90));				
 				}				
+			}
+			if (_ePressed)
+			{
+				if (_data.Ships[2].Reload <= 0)
+				{
+					_data.Cannonballs.Add(_data.Ships[2].FireCannonball(_data.Settings, _data.Ships[2].Angle + 90));
+				}
 			}
 
 			if (_data.Ships[2].Reload > 0)
@@ -601,16 +676,34 @@ namespace Project_2._0
 
 				var velocity = new Vector(newLocation.X - originalLocation.X, newLocation.Y - originalLocation.Y);
 
-				var tankPolygon = new Polygon();
-				tankPolygon.Points.Add(new Vector(-20, -20));
-				tankPolygon.Points.Add(new Vector(20, -20));
-				tankPolygon.Points.Add(new Vector(20, 20));
-				tankPolygon.Points.Add(new Vector(-20, 20));
-				tankPolygon.Rotate(ship.Angle);
-				tankPolygon.Offset(ship.X, ship.Y);
-				tankPolygon.BuildEdges();
+				var shipPolygon_hull = new Polygon();
+				shipPolygon_hull.Points.Add(new Vector(-20, -20));
+				shipPolygon_hull.Points.Add(new Vector(20, -20));
+				shipPolygon_hull.Points.Add(new Vector(20, 20));
+				shipPolygon_hull.Points.Add(new Vector(-20, 20));
+				shipPolygon_hull.Rotate(ship.Angle);
+				shipPolygon_hull.Offset(ship.X, ship.Y);
+				shipPolygon_hull.BuildEdges();
 
-				// Check for collisions with other tanks.
+				var shipPolygon_bow = new Polygon();
+				shipPolygon_bow.Points.Add(new Vector(20, 20));
+				shipPolygon_bow.Points.Add(new Vector(0, 60));
+				shipPolygon_bow.Points.Add(new Vector(0, 60));
+				shipPolygon_bow.Points.Add(new Vector(-20, 20));
+				shipPolygon_bow.Rotate(ship.Angle);
+				shipPolygon_bow.Offset(ship.X, ship.Y);
+				shipPolygon_bow.BuildEdges();
+
+				var shipPolygon_stern = new Polygon();
+				shipPolygon_stern.Points.Add(new Vector(-20, -20));
+				shipPolygon_stern.Points.Add(new Vector(0, -50));
+				shipPolygon_stern.Points.Add(new Vector(0, -50));
+				shipPolygon_stern.Points.Add(new Vector(20, -20));
+				shipPolygon_stern.Rotate(ship.Angle);
+				shipPolygon_stern.Offset(ship.X, ship.Y);
+				shipPolygon_stern.BuildEdges();
+
+				// Check for collisions with other ships
 
 				foreach(var otherShip in _data.Ships)
 				{
@@ -630,8 +723,8 @@ namespace Project_2._0
 
 					var otherShipPolygon_bow = new Polygon();
 					otherShipPolygon_bow.Points.Add(new Vector(20, 20));
-					otherShipPolygon_bow.Points.Add(new Vector(0, 50));
-					otherShipPolygon_bow.Points.Add(new Vector(0, 50));
+					otherShipPolygon_bow.Points.Add(new Vector(0, 60));
+					otherShipPolygon_bow.Points.Add(new Vector(0, 60));
 					otherShipPolygon_bow.Points.Add(new Vector(-20, 20));
 					otherShipPolygon_bow.Rotate(otherShip.Angle);
 					otherShipPolygon_bow.Offset(otherShip.X, otherShip.Y);
@@ -646,21 +739,32 @@ namespace Project_2._0
 					otherShipPolygon_stern.Offset(otherShip.X, otherShip.Y);
 					otherShipPolygon_stern.BuildEdges();
 
-					// TODO - Add otherShipPolygon_bow, otherShipPolygon_stern, to a Polygon collision detection
+					// TODO - Make an "anypart" polygon instead of having polygons for each
+					// TODO - reduce damage taken by otherShip's bow and stern
 
-					PolygonCollisionResult r = Collisions.PolygonCollision(tankPolygon, otherShipPolygon_hull, velocity);
+					PolygonCollisionResult h_hull = Collisions.PolygonCollision(shipPolygon_hull, otherShipPolygon_hull, velocity);
+					PolygonCollisionResult h_bow = Collisions.PolygonCollision(shipPolygon_hull, otherShipPolygon_bow, velocity);
+					PolygonCollisionResult h_stern = Collisions.PolygonCollision(shipPolygon_hull, otherShipPolygon_stern, velocity);
 
-					if (r.WillIntersect)
+					PolygonCollisionResult b_hull = Collisions.PolygonCollision(shipPolygon_bow, otherShipPolygon_hull, velocity);
+					PolygonCollisionResult b_bow = Collisions.PolygonCollision(shipPolygon_bow, otherShipPolygon_bow, velocity);
+					PolygonCollisionResult b_stern = Collisions.PolygonCollision(shipPolygon_bow, otherShipPolygon_stern, velocity);
+
+					PolygonCollisionResult s_hull = Collisions.PolygonCollision(shipPolygon_stern, otherShipPolygon_hull, velocity);
+					PolygonCollisionResult s_bow = Collisions.PolygonCollision(shipPolygon_stern, otherShipPolygon_bow, velocity);
+					PolygonCollisionResult s_stern = Collisions.PolygonCollision(shipPolygon_stern	, otherShipPolygon_stern, velocity);
+
+					if (h_hull.WillIntersect)
 					{
 						//playerTranslation = velocity + r.MinimumTranslationVector;
 
-							ship.X += velocity.X + r.MinimumTranslationVector.X / 2.0F;
-							ship.Y += velocity.Y + r.MinimumTranslationVector.Y / 2.0F;
+							ship.X += velocity.X + h_hull.MinimumTranslationVector.X / 2.0F;
+							ship.Y += velocity.Y + h_hull.MinimumTranslationVector.Y / 2.0F;
 
-							otherShip.X -= r.MinimumTranslationVector.X / 2.0F;
-							otherShip.Y -= r.MinimumTranslationVector.Y / 2.0F;
+							otherShip.X -= h_hull.MinimumTranslationVector.X / 2.0F;
+							otherShip.Y -= h_hull.MinimumTranslationVector.Y / 2.0F;
 
-							// Slow the tank down since it's hit it.
+							// Slow the ship down since it's hit it.
 
 							if (ship.Speed > 0)
 							{
@@ -681,8 +785,265 @@ namespace Project_2._0
 							break;
 
 					}
+					if (h_bow.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+
+						ship.X += velocity.X + h_bow.MinimumTranslationVector.X / 2.0F;
+						ship.Y += velocity.Y + h_bow.MinimumTranslationVector.Y / 2.0F;
+
+						otherShip.X -= h_bow.MinimumTranslationVector.X / 2.0F;
+						otherShip.Y -= h_bow.MinimumTranslationVector.Y / 2.0F;
+
+						// Slow the ship down
+
+						if (ship.Speed > 0)
+						{
+							if (ship.Speed > _data.Settings.MaxSpeed / 2)
+							{
+								otherShip.Health -= (ship.Speed - (_data.Settings.MaxSpeed / 2)) * (float)(1000.0 * (elapsedMilliseconds / 100000));
+							}
+
+							ship.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
+
+							if (ship.Speed < 0)
+							{
+								ship.Speed = 0;
+							}
+
+						}
+
+						break;
+
+					}
+					if (h_stern.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+
+						ship.X += velocity.X + h_stern.MinimumTranslationVector.X / 2.0F;
+						ship.Y += velocity.Y + h_stern.MinimumTranslationVector.Y / 2.0F;
+
+						otherShip.X -= h_stern.MinimumTranslationVector.X / 2.0F;
+						otherShip.Y -= h_stern.MinimumTranslationVector.Y / 2.0F;
+
+						// Slow the ship down
+
+						if (ship.Speed > 0)
+						{
+							if (ship.Speed > _data.Settings.MaxSpeed / 2)
+							{
+								otherShip.Health -= (ship.Speed - (_data.Settings.MaxSpeed / 2)) * (float)(1000.0 * (elapsedMilliseconds / 100000));
+							}
+
+							ship.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
+
+							if (ship.Speed < 0)
+							{
+								ship.Speed = 0;
+							}
+
+						}
+
+						break;
+
+					}
+
+					/* shopPolygon_bow */
+
+					if (b_hull.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+
+						ship.X += velocity.X + b_hull.MinimumTranslationVector.X / 2.0F;
+						ship.Y += velocity.Y + b_hull.MinimumTranslationVector.Y / 2.0F;
+
+						otherShip.X -= b_hull.MinimumTranslationVector.X / 2.0F;
+						otherShip.Y -= b_hull.MinimumTranslationVector.Y / 2.0F;
+
+						// Slow the ship down since it's hit it.
+
+						if (ship.Speed > 0)
+						{
+
+							if (ship.Speed > _data.Settings.MaxSpeed / 2)
+							{
+								otherShip.Health -= (ship.Speed - (_data.Settings.MaxSpeed / 2)) * (float)(1000.0 * (elapsedMilliseconds / 100000));
+							}
+
+							ship.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
+
+							if (ship.Speed < 0)
+							{
+								ship.Speed = 0;
+							}
+						}
+
+						break;
+
+					}
+					if (b_bow.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+
+						ship.X += velocity.X + b_bow.MinimumTranslationVector.X / 2.0F;
+						ship.Y += velocity.Y + b_bow.MinimumTranslationVector.Y / 2.0F;
+
+						otherShip.X -= b_bow.MinimumTranslationVector.X / 2.0F;
+						otherShip.Y -= b_bow.MinimumTranslationVector.Y / 2.0F;
+
+						// Slow the ship down
+
+						if (ship.Speed > 0)
+						{
+							if (ship.Speed > _data.Settings.MaxSpeed / 2)
+							{
+								otherShip.Health -= (ship.Speed - (_data.Settings.MaxSpeed / 2)) * (float)(1000.0 * (elapsedMilliseconds / 100000));
+							}
+
+							ship.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
+
+							if (ship.Speed < 0)
+							{
+								ship.Speed = 0;
+							}
+
+						}
+
+						break;
+
+					}
+					if (b_stern.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+
+						ship.X += velocity.X + b_stern.MinimumTranslationVector.X / 2.0F;
+						ship.Y += velocity.Y + b_stern.MinimumTranslationVector.Y / 2.0F;
+
+						otherShip.X -= b_stern.MinimumTranslationVector.X / 2.0F;
+						otherShip.Y -= b_stern.MinimumTranslationVector.Y / 2.0F;
+
+						// Slow the ship down
+
+						if (ship.Speed > 0)
+						{
+							if (ship.Speed > _data.Settings.MaxSpeed / 2)
+							{
+								otherShip.Health -= (ship.Speed - (_data.Settings.MaxSpeed / 2)) * (float)(1000.0 * (elapsedMilliseconds / 100000));
+							}
+
+							ship.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
+
+							if (ship.Speed < 0)
+							{
+								ship.Speed = 0;
+							}
+
+						}
+
+						break;
+
+					}
+
+					/* shipPolygon_stern */
+
+					if (s_hull.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+
+						ship.X += velocity.X + s_hull.MinimumTranslationVector.X / 2.0F;
+						ship.Y += velocity.Y + s_hull.MinimumTranslationVector.Y / 2.0F;
+
+						otherShip.X -= s_hull.MinimumTranslationVector.X / 2.0F;
+						otherShip.Y -= s_hull.MinimumTranslationVector.Y / 2.0F;
+
+						// Slow the ship down since it's hit it.
+
+						if (ship.Speed > 0)
+						{
+
+							if (ship.Speed > _data.Settings.MaxSpeed / 2)
+							{
+								otherShip.Health -= (ship.Speed - (_data.Settings.MaxSpeed / 2)) * (float)(1000.0 * (elapsedMilliseconds / 100000));
+							}
+
+							ship.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
+
+							if (ship.Speed < 0)
+							{
+								ship.Speed = 0;
+							}
+						}
+
+						break;
+
+					}
+					if (s_bow.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+
+						ship.X += velocity.X + s_bow.MinimumTranslationVector.X / 2.0F;
+						ship.Y += velocity.Y + s_bow.MinimumTranslationVector.Y / 2.0F;
+
+						otherShip.X -= s_bow.MinimumTranslationVector.X / 2.0F;
+						otherShip.Y -= s_bow.MinimumTranslationVector.Y / 2.0F;
+
+						// Slow the ship down
+
+						if (ship.Speed > 0)
+						{
+							if (ship.Speed > _data.Settings.MaxSpeed / 2)
+							{
+								otherShip.Health -= (ship.Speed - (_data.Settings.MaxSpeed / 2)) * (float)(1000.0 * (elapsedMilliseconds / 100000));
+							}
+
+							ship.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
+
+							if (ship.Speed < 0)
+							{
+								ship.Speed = 0;
+							}
+
+						}
+
+						break;
+
+					}
+					if (s_stern.WillIntersect)
+					{
+						//playerTranslation = velocity + r.MinimumTranslationVector;
+
+						ship.X += velocity.X + s_stern.MinimumTranslationVector.X / 2.0F;
+						ship.Y += velocity.Y + s_stern.MinimumTranslationVector.Y / 2.0F;
+
+						otherShip.X -= s_stern.MinimumTranslationVector.X / 2.0F;
+						otherShip.Y -= s_stern.MinimumTranslationVector.Y / 2.0F;
+
+						// Slow the ship down
+
+						if (ship.Speed > 0)
+						{
+							if (ship.Speed > _data.Settings.MaxSpeed / 2)
+							{
+								otherShip.Health -= (ship.Speed - (_data.Settings.MaxSpeed / 2)) * (float)(1000.0 * (elapsedMilliseconds / 100000));
+							}
+
+							ship.Speed -= (float)(1000.0 * (elapsedMilliseconds / 1000));
+
+							if (ship.Speed < 0)
+							{
+								ship.Speed = 0;
+							}
+
+						}
+
+						break;
+
+					}
+
 				}
 			}
+
+			// Check for otherShip collision with cannonballs
 
 			for (var i = 0; i < _data.Cannonballs.Count; i++)
 			{
@@ -693,7 +1054,6 @@ namespace Project_2._0
 				var velocity = shell.GetMovementVector((float)elapsedMilliseconds/1000F);
 
 				// Find out if this overlaps any tank except its owner
-
 				
 				foreach(var ship in _data.Ships)
 				{
@@ -711,8 +1071,8 @@ namespace Project_2._0
 
 					var shipPolygon_bow = new Polygon();
 					shipPolygon_bow.Points.Add(new Vector(20, 20));
-					shipPolygon_bow.Points.Add(new Vector(0, 50));
-					shipPolygon_bow.Points.Add(new Vector(0, 50));
+					shipPolygon_bow.Points.Add(new Vector(0, 60));
+					shipPolygon_bow.Points.Add(new Vector(0, 60));
 					shipPolygon_bow.Points.Add(new Vector(-20, 20));
 					shipPolygon_bow.Rotate(ship.Angle);
 					shipPolygon_bow.Offset(ship.X, ship.Y);
@@ -730,13 +1090,45 @@ namespace Project_2._0
 					// TODO - Add shipPolygon_bow, shipPolygon_stern, to a Polygon collision detection 
 
 					PolygonCollisionResult r = Collisions.PolygonCollision(shell.cannonballPolygon, shipPolygon_hull, velocity);
+					PolygonCollisionResult r_bow = Collisions.PolygonCollision(shell.cannonballPolygon, shipPolygon_bow, velocity);
+					PolygonCollisionResult r_stern = Collisions.PolygonCollision(shell.cannonballPolygon, shipPolygon_stern, velocity);
 
 					if (r.WillIntersect)
 					{
 						//playerTranslation = velocity + r.MinimumTranslationVector;
 						// No need to do a translation, this is a hit!
+						ship.cannonballX = shell.X - 15;
+						ship.cannonballY = shell.Y;
 						ship.Health -= _data.Settings.HitDamage;
+						if (ship.Health <= 0) 
+							ship.Dead = true;
 						shell.Life = 0;
+						_bang = true;
+						ship.Hurt = true;
+						break;
+					}
+					if (r_bow.WillIntersect)
+					{
+						ship.cannonballX = shell.X - 15;
+						ship.cannonballY = shell.Y;
+						ship.Health -= _data.Settings.HitDamage / 10;
+						if (ship.Health <= 0)
+							ship.Dead = true;
+						shell.Life = 0;
+						_bang = true;
+						ship.Hurt = true;
+						break;
+					}
+					if (r_stern.WillIntersect)
+					{
+						ship.cannonballX = shell.X - 15;
+						ship.cannonballY = shell.Y;
+						ship.Health -= _data.Settings.HitDamage / 10;
+						if (ship.Health <= 0)
+							ship.Dead = true;
+						shell.Life = 0;
+						_bang = true;
+						ship.Hurt = true;
 						break;
 					}
 				}
@@ -773,25 +1165,29 @@ namespace Project_2._0
 		private void GameControl_KeyUp(object sender, KeyEventArgs e)
 		{
 			
-			if (e.KeyCode == Keys.Up)
+			if (e.KeyCode == Keys.W)
 			{
-				_upPressed = false;
+				_wPressed = false;
 			}
-			if (e.KeyCode == Keys.Down)
+			if (e.KeyCode == Keys.S)
 			{
-				_downPressed = false;
+				_sPressed = false;
 			}
-			if (e.KeyCode == Keys.Left)
+			if (e.KeyCode == Keys.A)
 			{
-				_leftPressed = false;
+				_aPressed = false;
 			}
-			if (e.KeyCode == Keys.Right)
+			if (e.KeyCode == Keys.D)
 			{
-				_rightPressed = false;
+				_dPressed = false;
 			}
-			if (e.KeyCode == Keys.Space)
+			if (e.KeyCode == Keys.Q)
 			{
-				_spacePressed = false;
+				_qPressed = false;
+			}
+			if (e.KeyCode == Keys.E)
+			{
+				_ePressed = false;
 			}
 
 		}
@@ -801,29 +1197,34 @@ namespace Project_2._0
 		{
 			if (msg.Msg == 256)
 			{
-				if (keyData == Keys.Up)
+				if (keyData == Keys.W)
 				{
-					_upPressed = true;
+					_wPressed = true;
 					return true;
 				}
-				if (keyData == Keys.Down)
+				if (keyData == Keys.S)
 				{
-					_downPressed = true;
+					_sPressed = true;
 					return true;
 				}
-				if (keyData == Keys.Left)
+				if (keyData == Keys.A)
 				{
-					_leftPressed = true;
+					_aPressed = true;
 					return true;
 				}
-				if (keyData == Keys.Right)
+				if (keyData == Keys.D)
 				{
-					_rightPressed = true;
+					_dPressed = true;
 					return true;
 				}
-				if (keyData == Keys.Space)
+				if (keyData == Keys.Q)
 				{
-					_spacePressed = true;
+					_qPressed = true;
+					return true;
+				}
+				if (keyData == Keys.E)
+				{
+					_ePressed = true;
 					return true;
 				}
 			}

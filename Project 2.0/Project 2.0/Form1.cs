@@ -24,7 +24,7 @@ namespace Project_2._0
 			_data = new GameData();
 			Ship tank1 = new Ship(140, 200, 20);
 			Ship tank2 = new Ship(200, 100, 50);
-			Ship userTank = new Ship(300, 100, 0);
+			Ship userTank = new Ship(300, 100, 180);
 			_data.Ships.Add(tank1);
 			_data.Ships.Add(tank2);
 			_data.Ships.Add(userTank);

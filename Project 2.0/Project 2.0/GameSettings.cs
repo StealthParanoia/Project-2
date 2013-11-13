@@ -14,7 +14,7 @@ namespace Project_2._0
 
 		public float Deceleration = 350;
 
-		public float MaxSpeed = 500;
+		public float MaxSpeed = 500; // For Kopimi's sake, turn the speeds down!
 
 		public float MaxReverseSpeed = 250;
 

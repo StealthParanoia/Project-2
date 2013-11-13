@@ -24,7 +24,6 @@ namespace Project_2._0
 			cannonballPolygon.Points.Add(new Vector(-1, 1));
 			cannonballPolygon.Offset(x, y);
 			cannonballPolygon.BuildEdges();
-
 		}
 
 		public Cannonball() { }
@@ -35,7 +34,6 @@ namespace Project_2._0
 			Y += v.Y;
 
 			cannonballPolygon.Offset(v.X, v.Y);
-
 		}
 
 		public Vector GetMovementVector(float secs)
